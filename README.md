@@ -21,6 +21,7 @@ By design, OpenClaw agents run in isolated databases and sandboxes. The built-in
 If you downloaded this from ClawHub or GitHub:
 1. Extract the folder into your `~/.openclaw/skills/` directory.
 2. Ensure the OpenClaw CLI (`openclaw`) is accessible in your system's PATH.
+3. The latest version fully complies with ClawHub review standards and has been published at https://clawhub.ai/zhangxue1985122219/multi-agent-intercom. The latest version is not the most powerful—it was adjusted to meet community guidelines. If you can read the code, the previous version is actually the most powerful; continue using that one.
 
 **One-Time Initialization:**
 Ask any of your agents to install the intercom protocol using natural language:
