@@ -161,27 +161,46 @@ You have the ability to communicate laterally with other agents. Please strictly
     print(msg_complete.format(count=installed_count))
     print(msg_warn)
 
-def run_background_task(shell_cmd):
+def run_background_task(cmd_list):
+    import shutil
+    executable = shutil.which(cmd_list[0])
+    
+    if not executable and os.name == 'nt':
+        executable = shutil.which(cmd_list[0] + '.cmd')
+
+    if not executable:
+        print(f"❌ Error: Cannot find '{cmd_list[0]}' executable in PATH.", file=sys.stderr)
+        return
+
     try:
         if os.name == 'nt':
-            startupinfo = subprocess.STARTUPINFO()
-            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-            startupinfo.wShowWindow = subprocess.SW_HIDE
-            
+            # Fix newline truncation bug in cmd.exe:
+            # If the executable is a .cmd wrapper, cmd.exe will truncate arguments containing newlines.
+            # We redirect it to the .ps1 equivalent and run via PowerShell to preserve multiline messages.
+            if executable.lower().endswith('.cmd'):
+                ps1_path = executable[:-4] + '.ps1'
+                if os.path.exists(ps1_path):
+                    cmd_list = ['powershell.exe', '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', ps1_path] + cmd_list[1:]
+                    executable = shutil.which('powershell.exe') or 'powershell.exe'
+
+            # Use CREATE_NO_WINDOW (0x08000000) for true silent execution.
+            CREATE_NO_WINDOW = getattr(subprocess, 'CREATE_NO_WINDOW', 0x08000000)
             subprocess.Popen(
-                shell_cmd, 
-                shell=True,
-                startupinfo=startupinfo,
+                [executable] + cmd_list[1:],
+                creationflags=CREATE_NO_WINDOW,
                 stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL
+                stderr=subprocess.DEVNULL,
+                stdin=subprocess.DEVNULL,
+                close_fds=True
             )
         else:
             subprocess.Popen(
-                shell_cmd, 
-                shell=True,
+                [executable] + cmd_list[1:],
                 preexec_fn=os.setsid,
                 stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL
+                stderr=subprocess.DEVNULL,
+                stdin=subprocess.DEVNULL,
+                close_fds=True
             )
     except Exception:
         pass
@@ -198,12 +217,10 @@ def send_message(target, sender_id, message, session_id, lang):
         print(f"Attempting to send message to '{target}' (session: {session_id})...")
         print("✅ Message successfully sent! The target will process it in the background.")
 
-    # Return to the exact same escaping logic that worked in version 1
-    safe_message = final_message.replace('"', '\\"')
-    shell_cmd = f'openclaw agent --agent {target} --session-id {session_id} --message "{safe_message}"'
+    cmd_args = ['openclaw', 'agent', '--agent', target, '--session-id', session_id, '--message', final_message]
     
     sys.stdout.flush()
-    run_background_task(shell_cmd)
+    run_background_task(cmd_args)
     sys.exit(0)
 
 def main():
