@@ -1,4 +1,4 @@
-# Multi-Agent Intercom (multi-agent-intercom)
+# Multi-Agent Intercom
 
 🗣️ **A powerful peer-to-peer communication skill for OpenClaw.**
 
