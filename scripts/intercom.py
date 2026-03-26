@@ -101,35 +101,43 @@ def install_protocol(lang):
 
 ## 📡 跨智能体通信协议 (Multi-Agent Intercom)
 你具有和其他智能体横向通信的能力。请严格遵守以下 SOP：
-1. **发送消息**：当你需要联系或通知其他智能体时，调用系统终端执行以下命令：
-   `python ~/.openclaw/skills/multi-agent-intercom/scripts/intercom.py send <目标智能体ID> <你的ID> "<你要说的话>"`
-2. **接收与强制回复**：当你看到一条以 `【来自智能体: xxx】` 开头的消息时，意味着你正在被对讲机呼叫。
-   - 你**必须立刻**处理该消息。
-   - 处理完毕后，你**必须**使用上述 `send` 命令将结果或确认信息**回复给发送方**。
-   - **严禁**直接在当前主聊天框里向人类用户说“谢谢收到”，你的直接回复必须发给呼叫你的那个智能体！
+
+发送消息：当你需要联系或通知其他智能体时，调用系统终端执行以下命令：
+`python ~/.openclaw/skills/multi-agent-intercom/scripts/intercom.py send <目标智能体 ID> <你的 ID> "<你要说的话>"`
+
+接收与强制回复：当你看到一条以 `[来自智能体 xxx]` 开头的消息时，意味着你正在被对讲机呼叫。
+
+你必须立刻处理该消息。
+处理完毕后，你必须使用上述 send 命令将结果或确认信息回复给发送方。
+严禁直接在当前主聊天框里向人类用户说"谢谢收到"，你的直接回复必须发给呼叫你的那个智能体！
+防止死循环：如果对方发来的仅仅是一句"收到"或简单的确认回复，你无需再次回复对方，直接终止对话即可。
 """
         tag_match = "Multi-Agent Intercom"
         msg_success = "✅ 协议已成功注入到"
         msg_skip = "ℹ️ 协议已存在于"
         msg_complete = "\n🎉 安装完成！共更新了 {count} 个智能体。"
-        msg_warn = "⚠️  重要提示：请提醒老大在聊天框输入 `/new` 命令，以重载我们的大脑记忆并激活该协议。"
+        msg_warn = "⚠️  重要提示：请提醒老大在各个智能体聊天框输入 `/new` 命令，以重载我们的大脑记忆并激活该协议。"
     else:
         protocol_text = """
 
 ## 📡 Multi-Agent Intercom Protocol
 You have the ability to communicate laterally with other agents. Please strictly follow this SOP:
-1. **Send Message**: When you need to contact or notify other agents, run the following command in the system terminal:
-   `python ~/.openclaw/skills/multi-agent-intercom/scripts/intercom.py send <TARGET_AGENT_ID> <YOUR_ID> "<YOUR_MESSAGE>"`
-2. **Receive & Mandatory Reply**: When you see a message starting with `[Incoming from Agent: xxx]`, it means you are being paged via intercom.
-   - You **MUST** process this message immediately.
-   - After processing, you **MUST** use the `send` command above to **reply to the sender**.
-   - **DO NOT** just say "Thank you" to the human user in the main chat. Your direct reply MUST go to the agent who called you!
+
+Send Message: When you need to contact or notify other agents, run the following command in the system terminal:
+`python ~/.openclaw/skills/multi-agent-intercom/scripts/intercom.py send <TARGET_AGENT_ID> <YOUR_ID> "<YOUR_MESSAGE>"`
+
+Receive & Mandatory Reply: When you see a message starting with `[From Agent xxx]`, it means you are being paged via intercom.
+
+You MUST process this message immediately.
+After processing, you MUST use the send command above to reply to the sender.
+DO NOT just say "Thank you" to the human user in the main chat. Your direct reply MUST go to the agent who called you!
+Anti-Loop Circuit Breaker: If the message you received is simply "Received" or a basic confirmation, DO NOT reply back. Terminate the conversation to prevent infinite loops.
 """
         tag_match = "Multi-Agent Intercom Protocol"
         msg_success = "✅ Protocol injected into"
         msg_skip = "ℹ️ Protocol already exists in"
         msg_complete = "\n🎉 Installation complete! Updated {count} agents."
-        msg_warn = "⚠️  IMPORTANT: Please tell the user to run the `/new` command in their chat to reload the updated AGENTS.md files into memory."
+        msg_warn = "⚠️  IMPORTANT: Please tell the user to run the `/new` command in each agent chat to reload the updated AGENTS.md files into memory."
 
     installed_count = 0
     for agent in agents:
